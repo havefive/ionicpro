@@ -7,9 +7,6 @@ var	async = require('async'),
 
 describe('Key methods', function() {
 
-	beforeEach(function(done) {
-		db.set('testKey', 'testValue', done);
-	});
 
 	it('should set a key without error', function(done) {
 		db.set('testKey', 'testValue', function(err) {
@@ -59,15 +56,11 @@ describe('Key methods', function() {
 		});
 	});
 
-	it('should return false if key was deleted', function(done) {
-		db.delete('testKey', function(err) {
+	it('should return false if key does not exist or was deleted', function(done) {
+		db.exists('testKey', function(err, exists) {
 			assert.equal(err, null);
-			assert.equal(arguments.length, 1);
-			db.exists('testKey', function(err, exists) {
-				assert.equal(err, null);
-				assert.strictEqual(exists, false);
-				done();
-			});
+			assert.strictEqual(exists, false);
+			done();
 		});
 	});
 

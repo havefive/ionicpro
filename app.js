@@ -29,10 +29,10 @@ var fs = require('fs'),
 	async = require('async'),
 	semver = require('semver'),
 	winston = require('winston'),
-	colors = require('colors'),
 	path = require('path'),
 	pkg = require('./package.json'),
 	utils = require('./public/src/utils.js');
+
 
 global.env = process.env.NODE_ENV || 'production';
 
@@ -117,7 +117,6 @@ function start() {
 	// Parse out the relative_url and other goodies from the configured URL
 	var urlObject = url.parse(nconf.get('url'));
 	var relativePath = urlObject.pathname !== '/' ? urlObject.pathname : '';
-	nconf.set('base_url', urlObject.protocol + '//' + urlObject.host);
 	nconf.set('use_port', !!urlObject.port);
 	nconf.set('relative_path', relativePath);
 	nconf.set('port', urlObject.port || nconf.get('port') || nconf.get('PORT') || 4567);
@@ -280,19 +279,17 @@ function reset() {
 			process.exit();
 		}
 
-		if (nconf.get('t')) {
+		if (nconf.get('theme')) {
 			resetThemes();
-		} else if (nconf.get('p')) {
-			if (nconf.get('p') === true) {
-				resetPlugins();
-			} else {
-				resetPlugin(nconf.get('p'));
-			}
-		} else if (nconf.get('w')) {
+		} else if (nconf.get('plugin')) {
+			resetPlugin(nconf.get('plugin'));
+		} else if (nconf.get('plugins')) {
+			resetPlugins();
+		} else if (nconf.get('widgets')) {
 			resetWidgets();
-		} else if (nconf.get('s')) {
+		} else if (nconf.get('settings')) {
 			resetSettings();
-		} else if (nconf.get('a')) {
+		} else if (nconf.get('all')) {
 			require('async').series([resetWidgets, resetThemes, resetPlugins, resetSettings], function(err) {
 				if (!err) {
 					winston.info('[reset] Reset complete.');
@@ -302,17 +299,10 @@ function reset() {
 				process.exit();
 			});
 		} else {
-			process.stdout.write('\nNodeBB Reset\n'.bold);
-			process.stdout.write('No arguments passed in, so nothing was reset.\n\n'.yellow);
-			process.stdout.write('Use ./nodebb reset ' + '{-t|-p|-w|-s|-a}\n'.red);
-			process.stdout.write('    -t\tthemes\n');
-			process.stdout.write('    -p\tplugins\n');
-			process.stdout.write('    -w\twidgets\n');
-			process.stdout.write('    -s\tsettings\n');
-			process.stdout.write('    -a\tall of the above\n');
-
-			process.stdout.write('\nPlugin reset flag (-p) can take a single argument\n');
-			process.stdout.write('    e.g. ./nodebb reset -p nodebb-plugin-mentions\n');
+			winston.warn('[reset] Nothing reset.');
+			winston.info('Use ./nodebb reset {theme|plugins|widgets|settings|all}');
+			winston.info(' or');
+			winston.info('Use ./nodebb reset plugin="nodebb-plugin-pluginName"');
 			process.exit();
 		}
 	});

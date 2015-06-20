@@ -2,7 +2,6 @@
 
 var async = require('async'),
 	nconf = require('nconf'),
-	db = require('../database'),
 	meta = require('../meta'),
 	groups = require('../groups'),
 	user = require('../user'),
@@ -10,33 +9,17 @@ var async = require('async'),
 	groupsController = {};
 
 groupsController.list = function(req, res, next) {
-	var sort = req.query.sort || 'alpha';
-
-	groupsController.getGroupsFromSet(req.uid, sort, 0, 8, function(err, data) {
+	groups.list({
+		truncateUserList: true,
+		expand: true,
+		uid: req.uid
+	}, function(err, groups) {
 		if (err) {
 			return next(err);
 		}
-		res.render('groups/list', data);
-	});
-};
-
-groupsController.getGroupsFromSet = function(uid, sort, start, stop, callback) {
-	var set = 'groups:visible:name';
-	if (sort === 'count') {
-		set = 'groups:visible:memberCount';
-	} else if (sort === 'date') {
-		set = 'groups:visible:createtime';
-	}
-
-	groups.getGroupsFromSet(set, uid, start, stop, function(err, groups) {
-		if (err) {
-			return callback(err);
-		}
-
-		callback(null, {
+		res.render('groups/list', {
 			groups: groups,
-		 	allowGroupCreation: parseInt(meta.config.allowGroupCreation, 10) === 1,
-		 	nextStart: stop + 1
+			allowGroupCreation: parseInt(meta.config.allowGroupCreation, 10) === 1
 		});
 	});
 };
@@ -79,6 +62,7 @@ groupsController.details = function(req, res, next) {
 		async.parallel({
 			group: function(next) {
 				groups.get(res.locals.groupName, {
+					expand: true,
 					uid: req.uid
 				}, next);
 			},

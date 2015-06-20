@@ -7,11 +7,8 @@
 		async = require('async'),
 		nconf = require('nconf'),
 		session = require('express-session'),
-		_ = require('underscore'),
 		semver = require('semver'),
 		db, mongoClient;
-
-	_.mixin(require('underscore.deep'));
 
 	module.questions = [
 		{
@@ -92,9 +89,6 @@
 				poolSize: parseInt(nconf.get('mongo:poolSize'), 10) || 10
 			}
 		};
-
-		connOptions = _.deepExtend((nconf.get('mongo:options') || {}), connOptions);
-
 		mongoClient.connect(connString, connOptions, function(err, _db) {
 			if (err) {
 				winston.error("NodeBB could not connect to your Mongo database. Mongo returned the following error: " + err.message);
@@ -167,6 +161,7 @@
 	};
 
 	module.checkCompatibility = function(callback) {
+		// For MongoDB, we need to ensure that the mongodb package is >= 2.0.0
 		var mongoPkg = require.main.require('./node_modules/mongodb/package.json'),
 			err = semver.lt(mongoPkg.version, '2.0.0') ? new Error('The `mongodb` package is out-of-date, please run `./nodebb setup` again.') : null;
 

@@ -5,6 +5,7 @@ var async = require('async'),
 	validator = require('validator'),
 	winston = require('winston'),
 
+	auth = require('../routes/authentication'),
 	meta = require('../meta'),
 	user = require('../user'),
 	posts = require('../posts'),
@@ -23,7 +24,6 @@ var Controllers = {
 	users: require('./users'),
 	groups: require('./groups'),
 	accounts: require('./accounts'),
-	authentication: require('./authentication'),
 	api: require('./api'),
 	admin: require('./admin')
 };
@@ -74,7 +74,7 @@ Controllers.reset = function(req, res, next) {
 
 Controllers.login = function(req, res, next) {
 	var data = {},
-		loginStrategies = require('../routes/authentication').getLoginStrategies(),
+		loginStrategies = auth.getLoginStrategies(),
 		emailersPresent = plugins.hasListeners('action:email.send');
 
 	data.alternate_logins = loginStrategies.length > 0;
@@ -95,7 +95,7 @@ Controllers.register = function(req, res, next) {
 	}
 
 	var data = {},
-		loginStrategies = require('../routes/authentication').getLoginStrategies();
+		loginStrategies = auth.getLoginStrategies();
 
 	if (loginStrategies.length === 0) {
 		data = {
@@ -129,10 +129,6 @@ Controllers.register = function(req, res, next) {
 };
 
 Controllers.compose = function(req, res, next) {
-	if (req.query.p && !res.locals.isAPI) {
-		return helpers.redirect(res, req.query.p);
-	}
-
 	res.render('composer', {});
 };
 

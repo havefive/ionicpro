@@ -52,25 +52,9 @@ adminController.home = function(req, res, next) {
 		},
 		notices: function(next) {
 			var notices = [
-				{
-					done: !meta.reloadRequired,
-					doneText: 'Reload not required',
-					notDoneText:'Reload required'
-				},
-				{
-					done: plugins.hasListeners('action:email.send'),
-					doneText: 'Emailer Installed',
-					notDoneText:'Emailer not installed',
-					tooltip:'Install an emailer plugin from the plugin page in order to activate registration emails and email digests',
-					link:'/admin/extend/plugins'
-				},
-				{
-					done: plugins.hasListeners('filter:search.query'),
-					doneText: 'Search Plugin Installed',
-					notDoneText:'Search Plugin not installed',
-					tooltip: 'Install a search plugin from the plugin page in order to activate search functionality',
-					link:'/admin/extend/plugins'
-				}
+				{done: !meta.reloadRequired, doneText: 'Reload not required', notDoneText:'Reload required'},
+				{done: plugins.hasListeners('action:email.send'), doneText: 'Emailer Installed', notDoneText:'Emailer not installed'},
+				{done: plugins.hasListeners('filter:search.query'), doneText: 'Search Plugin Installed', notDoneText:'Search Plugin not installed'}
 			];
 			plugins.fireHook('filter:admin.notices', notices, next);
 		}
@@ -166,8 +150,28 @@ adminController.categories.get = function(req, res, next) {
 };
 
 adminController.categories.getAll = function(req, res, next) {
-	//Categories list will be rendered on client side with recursion, etc.
-	res.render('admin/manage/categories', {});
+	var	active = [],
+		disabled = [];
+
+	async.waterfall([
+		async.apply(db.getSortedSetRangeByScore, 'categories:cid', 0, -1, 0, Date.now()),
+		async.apply(categories.getCategoriesData),
+		function(categories, next) {
+			plugins.fireHook('filter:admin.categories.get', {req: req, res: res, categories: categories}, next);
+		}
+	], function(err, data) {
+		if (err) {
+			return next(err);
+		}
+		data.categories.filter(Boolean).forEach(function(category) {
+			(category.disabled ? disabled : active).push(category);
+		});
+
+		res.render('admin/manage/categories', {
+			active: active,
+			disabled: disabled
+		});
+	});
 };
 
 adminController.tags.get = function(req, res, next) {
@@ -377,14 +381,15 @@ adminController.extend.rewards = function(req, res, next) {
 };
 
 adminController.groups.get = function(req, res, next) {
-	groups.getGroupsFromSet('groups:createtime', req.uid, 0, -1, function(err, groups) {
+	groups.list({
+		expand: true,
+		truncateUserList: true,
+		isAdmin: true,
+		showSystemGroups: true
+	}, function(err, groups) {
 		if (err) {
 			return next(err);
 		}
-
-		groups = groups.filter(function(group) {
-			return group && group.name.indexOf(':privileges:') === -1 && group.name !== 'registered-users';
-		});
 
 		res.render('admin/manage/groups', {
 			groups: groups,

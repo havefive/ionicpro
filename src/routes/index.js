@@ -123,6 +123,11 @@ module.exports = function(app, middleware) {
 	feedRoutes(router, middleware, controllers);
 	pluginRoutes(router, middleware, controllers);
 
+	/**
+	* Every view has an associated API route.
+	*
+	*/
+
 	mainRoutes(router, middleware, controllers);
 	topicRoutes(router, middleware, controllers);
 	tagRoutes(router, middleware, controllers);

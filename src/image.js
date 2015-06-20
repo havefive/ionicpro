@@ -1,48 +1,41 @@
 'use strict';
 
 var fs = require('fs'),
-	lwip = require('lwip'),
-	plugins = require('./plugins');
+	gm = require('gm').subClass({imageMagick: true});
 
 var image = {};
 
 image.resizeImage = function(path, extension, width, height, callback) {
-	if (plugins.hasListeners('filter:image.resize')) {
-		plugins.fireHook('filter:image.resize', {
-			path: path,
-			extension: extension,
-			width: width,
-			height: height
-		}, function(err, data) {
-			callback(err);
-		});
+	function done(err, stdout, stderr) {
+		callback(err);
+	}
+
+	if(extension === '.gif') {
+		gm().in(path)
+			.in('-coalesce')
+			.in('-resize')
+			.in(width+'x'+height+'^')
+			.write(path, done);
 	} else {
-		lwip.open(path, function(err, image) {
-			image.batch()
-				.cover(width, height)
-				.crop(width, height)
-				.writeFile(path, function(err) {
-					callback(err)
-				})
-			});
+		gm(path)
+			.in('-resize')
+			.in(width+'x'+height+'^')
+			.gravity('Center')
+			.crop(width, height)
+			.write(path, done);
 	}
 };
 
-image.normalise = function(path, extension, callback) {
-	if (plugins.hasListeners('filter:image.normalise')) {
-		plugins.fireHook('filter:image.normalise', {
-			path: path,
-			extension: extension
-		}, function(err, data) {
-			callback(err);
-		});
-	} else {
-		lwip.open(path, function(err, image) {
+image.convertImageToPng = function(path, extension, callback) {
+	if(extension !== '.png') {
+		gm(path).toBuffer('png', function(err, buffer) {
 			if (err) {
 				return callback(err);
 			}
-			image.writeFile(path, 'png', callback)
+			fs.writeFile(path, buffer, 'binary', callback);
 		});
+	} else {
+		callback();
 	}
 };
 

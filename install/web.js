@@ -41,7 +41,8 @@ web.install = function(port) {
 
 function launchExpress(port) {
 	server = app.listen(port, function() {
-		winston.info('Web installer listening on http://%s:%s', '0.0.0.0', port);
+		var host = server.address().address;
+		winston.info('Web installer listening on http://%s:%s', host, port);
 	});
 }
 
@@ -103,10 +104,6 @@ function launch(req, res) {
 		stdio: ['ignore', 'ignore', 'ignore']
 	});
 
-	process.stdout.write('\nStarting NodeBB\n');
-	process.stdout.write('    "./nodebb stop" to stop the NodeBB server\n');
-	process.stdout.write('    "./nodebb log" to view server output\n');
-	process.stdout.write('    "./nodebb restart" to restart NodeBB\n');
 	
 	child.unref();
 	process.exit(0);

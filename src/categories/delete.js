@@ -3,7 +3,6 @@
 var async = require('async'),
 	db = require('../database'),
 	batch = require('../batch'),
-	plugins = require('../plugins'),
 	threadTools = require('../threadTools');
 
 
@@ -18,10 +17,7 @@ module.exports = function(Categories) {
 			if (err) {
 				return callback(err);
 			}
-			async.series([
-				async.apply(purgeCategory, cid),
-				async.apply(plugins.fireHook, 'action:category.delete', cid)
-			], callback);
+			purgeCategory(cid, callback);
 		});
 	};
 

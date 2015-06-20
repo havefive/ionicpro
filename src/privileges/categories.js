@@ -101,25 +101,19 @@ module.exports = function(privileges) {
 							groupNames.splice(0, 0, groupNames.splice(groupNames.indexOf('registered-users'), 1)[0]);
 							groupNames.splice(groupNames.indexOf('administrators'), 1);
 
-							var memberPrivs, boolSet,
-								memberData = groupNames.filter(function(member) {
+							var memberData = groupNames.filter(function(member) {
 								return member.indexOf(':privileges:') === -1;
 							}).map(function(member) {
-								memberPrivs = {};
-								boolSet = [];	// Here, the boolSet is used as a quick way to determine whether a given group's privilege set is empty or not (see below)
+								var memberPrivs = {};
 								for(var x=0,numPrivs=privileges.length;x<numPrivs;x++) {
-									boolSet.push(memberPrivs[privileges[x]] = memberSets[x].indexOf(member) !== -1);
+									memberPrivs[privileges[x]] = memberSets[x].indexOf(member) !== -1;
 								}
 
-								if (boolSet.some(Boolean)) {
-									return {
-										name: member,
-										privileges: memberPrivs,
-									};
-								} else {
-									return null;
-								}
-							}).filter(Boolean);
+								return {
+									name: member,
+									privileges: memberPrivs,
+								};
+							});
 
 							next(null, memberData);
 						});

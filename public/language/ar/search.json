@@ -8,9 +8,9 @@
     "posted-by": "Posted by",
     "in-categories": "في الفئات",
     "search-child-categories": "بحث في الفئات الفرعية",
-    "reply-count": "عدد المشاركات",
-    "at-least": "على اﻷقل",
-    "at-most": "على اﻷكثر",
+    "reply-count": "Reply Count",
+    "at-least": "At least",
+    "at-most": "At most",
     "post-time": "تاريخ المشاركة",
     "newer-than": "أحدث من",
     "older-than": "أقدم من",
@@ -33,8 +33,8 @@
     "descending": "In descending order",
     "ascending": "In ascending order",
     "save-preferences": "حفظ التفضيلات",
-    "clear-preferences": "ازالة التفضيلات",
+    "clear-preferences": "Clear preferences",
     "search-preferences-saved": "تم حفظ تفضيلات البحث",
-    "search-preferences-cleared": "تم ازالة تفضيلات البحث",
+    "search-preferences-cleared": "Search preferences cleared",
     "show-results-as": "عرض النتائج كـ"
 }

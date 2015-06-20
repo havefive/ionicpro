@@ -20,13 +20,7 @@ module.exports = function(Categories) {
 					var fields = Object.keys(category);
 					async.each(fields, function(key, next) {
 						updateCategoryField(cid, key, category[key], next);
-					}, function(err) {
-						if (err) {
-							return next(err);
-						}
-						plugins.fireHook('action:category.update', {cid: cid, modified: category});
-						next();
-					});
+					}, next);
 				});
 			});
 		}

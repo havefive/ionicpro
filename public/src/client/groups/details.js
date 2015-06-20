@@ -66,8 +66,6 @@ define('forum/groups/details', ['iconSelect', 'components', 'vendor/colorpicker/
 				case 'reject':
 				case 'acceptInvite':
 				case 'rejectInvite':
-				case 'acceptAll':
-				case 'rejectAll':
 					socket.emit('groups.' + action, {
 						toUid: uid,
 						groupName: ajaxify.variables.get('group_name')

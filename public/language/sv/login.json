@@ -1,6 +1,6 @@
 {
-    "username-email": "Användarnamn eller epostadress",
-    "username": "Användarnamn",
+    "username-email": "Username / Email",
+    "username": "Username",
     "email": "Email",
     "remember_me": "Kom ihåg mig?",
     "forgot_password": "Glömt lösenord?",

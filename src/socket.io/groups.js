@@ -1,11 +1,10 @@
 "use strict";
 
-var	async = require('async'),
-
-	groups = require('../groups'),
+var	groups = require('../groups'),
 	meta = require('../meta'),
 	user = require('../user'),
-	groupsController = require('../controllers/groups'),
+
+	async = require('async'),
 
 	SocketGroups = {};
 
@@ -102,37 +101,6 @@ SocketGroups.reject = function(socket, data, callback) {
 	});
 };
 
-SocketGroups.acceptAll = function(socket, data, callback) {
-	acceptRejectAll('accept', socket, data, callback);
-};
-
-SocketGroups.rejectAll = function(socket, data, callback) {
-	acceptRejectAll('reject', socket, data, callback);
-};
-
-function acceptRejectAll(type, socket, data, callback) {
-	if (!data) {
-		return callback(new Error('[[error:invalid-data]]'));
-	}
-
-	groups.ownership.isOwner(socket.uid, data.groupName, function(err, isOwner) {
-		if (err || !isOwner) {
-			return callback(err || new Error('[[error:no-privileges]]'));
-		}
-		async.waterfall([
-			function(next) {
-				groups.getPending(data.groupName, next);
-			},
-			function(uids, next) {
-				var method = type === 'accept' ? groups.acceptMembership : groups.rejectMembership;
-				async.each(uids, function(uid, next) {
-					method(data.groupName, uid, next);
-				}, next);
-			}
-		], callback);
-	});
-}
-
 SocketGroups.acceptInvite = function(socket, data, callback) {
 	if (!data) {
 		return callback(new Error('[[error:invalid-data]]'));
@@ -213,26 +181,7 @@ SocketGroups.search = function(socket, data, callback) {
 		return callback(null, []);
 	}
 
-	if (!data.query) {
-		var groupsPerPage = 9;
-		groupsController.getGroupsFromSet(socket.uid, data.options.sort, 0, groupsPerPage - 1, function(err, data) {
-			callback(err, !err ? data.groups : null);
-		});
-		return;
-	}
-
-	groups.search(data.query, data.options || {}, callback);
-};
-
-SocketGroups.loadMore = function(socket, data, callback) {
-	if (!data || !data.sort || !data.after) {
-		return callback();
-	}
-
-	var groupsPerPage = 9;
-	var start = parseInt(data.after);
-	var stop = start + groupsPerPage - 1;
-	groupsController.getGroupsFromSet(socket.uid, data.sort, start, stop, callback);
+	groups.search(data.query || '', data.options || {}, callback);
 };
 
 SocketGroups.searchMembers = function(socket, data, callback) {

@@ -27,9 +27,7 @@ define('admin/extend/plugins', function() {
 					type: status.active ? 'warning' : 'success',
 					timeout: 5000,
 					clickfn: function() {
-						require(['admin/modules/instance'], function(instance) {
-							instance.reload();
-						});
+						socket.emit('admin.reload');
 					}
 				});
 			});
@@ -162,9 +160,7 @@ define('admin/extend/plugins', function() {
 					type: 'warning',
 					timeout: 5000,
 					clickfn: function() {
-						require(['admin/modules/instance'], function(instance) {
-							instance.reload();
-						});
+						socket.emit('admin.reload');
 					}
 				});
 			}

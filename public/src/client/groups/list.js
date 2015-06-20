@@ -1,7 +1,7 @@
 "use strict";
 /* globals app, define, ajaxify, socket, bootbox, utils, templates */
 
-define('forum/groups/list', ['forum/infinitescroll'], function(infinitescroll) {
+define('forum/groups/list', function() {
 	var Groups = {};
 
 	Groups.init = function() {
@@ -12,8 +12,6 @@ define('forum/groups/list', ['forum/infinitescroll'], function(infinitescroll) {
 
 			ajaxify.go('groups/' + groupSlug);
 		});
-
-		infinitescroll.init(Groups.loadMoreGroups);
 
 		// Group creation
 		$('button[data-action="new"]').on('click', function() {
@@ -31,42 +29,12 @@ define('forum/groups/list', ['forum/infinitescroll'], function(infinitescroll) {
 				}
 			});
 		});
-		var params = utils.params();
-		$('#search-sort').val(params.sort || 'alpha');
 
 		// Group searching
 		$('#search-text').on('keyup', Groups.search);
 		$('#search-button').on('click', Groups.search);
-		$('#search-sort').on('change', function() {
-			ajaxify.go('groups?sort=' + $('#search-sort').val());
-		});
+		$('#search-sort').on('change', Groups.search);
 	};
-
-	Groups.loadMoreGroups = function(direction) {
-		if (direction < 0) {
-			return;
-		}
-
-		infinitescroll.loadMore('groups.loadMore', {
-			sort: $('#search-sort').val(),
-			after: $('[component="groups/container"]').attr('data-nextstart')
-		}, function(data, done) {
-			if (data && data.groups.length) {
-				templates.parse('partials/groups/list', {
-					groups: data.groups
-				}, function(html) {
-					$('#groups-list').append(html);
-					done();
-				});
-			} else {
-				done();
-			}
-
-			if (data && data.nextStart) {
-				$('[component="groups/container"]').attr('data-nextstart', data.nextStart);
-			}
-		});
-	}
 
 	Groups.search = function() {
 		var groupsEl = $('#groups-list'),
@@ -76,6 +44,8 @@ define('forum/groups/list', ['forum/infinitescroll'], function(infinitescroll) {
 		socket.emit('groups.search', {
 			query: queryEl.val(),
 			options: {
+				expand: true,
+				truncateUserList: true,
 				sort: sortEl.val()
 			}
 		}, function(err, groups) {
