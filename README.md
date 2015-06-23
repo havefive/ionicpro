@@ -1,3 +1,48 @@
+使用安装步骤
+
+1.用WebStorm CheckOut下来，或下载zip包https://github.com/havefive/ionicpro
+
+2.npm install
+
+3.安装mongodb,使用homebrew安装,命令$ brew install mongodb
+  新建db目录：$ mkdir -p /data/db
+  赋权限 $ sudo chown -R /data/db
+  启用mongodb  cd /local/Cellar/mongodb/2.6.7/bin
+  ./mongo
+  新建数据库 use ionic
+  增加用户 db.createUser( { user: "ionic", pwd: "123456", roles: [ "readWrite" ] } )
+
+4.配置启动nodebb
+  ./nodebb setup
+  Welcome to NodeBB!
+
+  This looks like a new installation, so you'll have to answer a few questions about your environment before we can proceed.
+  Press enter to accept the default setting (shown in brackets).
+  URL used to access this NodeBB (http://localhost:4567)
+  Please enter a NodeBB secret (143d6edd-462c-4e44-bc85-6cedf94af5de) 34392960-ca09-4645-b7af-73f860e25c5f
+  Which database to use (mongo) **输入mongo**
+
+  20/6 23:25 [32782] - info: Now configuring mongo database:
+  Host IP or address of your MongoDB instance (127.0.0.1)
+  Host port of your MongoDB instance (27017)
+  MongoDB username (ionic)
+  Password of your MongoDB database
+  Which database to use (0)
+  Configuration Saved OK
+
+  第一次会提示配置管理员
+
+  之后启动./nodebb start
+  访问localhost://4567
+
+
+
+
+## Installation
+
+[Please refer to platform-specific installation documentation](http://docs.nodebb.org/en/latest/installing/os.html)
+
+
 # <img alt="NodeBB" src="http://i.imgur.com/mYxPPtB.png" />
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NodeBB/NodeBB?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
